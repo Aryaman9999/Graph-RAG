@@ -60,7 +60,15 @@ llm = AzureChatOpenAI(
     openai_api_version="",
     openai_api_key=os.getenv('CHAT_GPT_KEY'),
 )
+## Uncomment if you want to use a local llm
+## I recommend Mistral-nemo for its combination of speed and acuracy in cypher queries
+# from langchain_ollama import ChatOllama
 
+# llm = ChatOllama(
+#     model="Mistral-nemo",
+#     temperature=0,
+
+# )
 # Define expected output schema
 response_schemas = [ResponseSchema(name="cypher_query", description="The Cypher query to execute.")]
 output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
