@@ -13,7 +13,7 @@ This project creates and queries a **Knowledge Graph** for space exploration mis
 ## Setup & Installation
 ### Prerequisites
 Ensure you have the following installed:
-- **Python 3.9+ **
+- **Python 3.9+**
 - **Neo4j (Community or Enterprise Edition)**
 - **Docker (optional for Neo4j setup)**
 - **Azure OpenAI API Access**
