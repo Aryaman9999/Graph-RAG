@@ -9,11 +9,12 @@ This project creates and queries a **Knowledge Graph** for space exploration mis
 - **Schema Extraction:** Extracts the graph schema dynamically from Neo4j.
 - **Query Execution:** Runs generated Cypher queries on Neo4j and formats results in a readable format.
 - **Rich Output:** Displays results using **Rich tables** for better visualization.
+- **Local LLM support:** I have given an option to use local LLMs using Ollama, recommend using **Mistral-nemo** for its combination of small size , accuracy and speed.
 
 ## Setup & Installation
 ### Prerequisites
 Ensure you have the following installed:
-- **Python 3.9+**
+- **Python 3.10**
 - **Neo4j (Community or Enterprise Edition)**
 - **Docker (optional for Neo4j setup)**
 - **Azure OpenAI API Access**
