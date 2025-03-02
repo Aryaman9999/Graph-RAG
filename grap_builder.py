@@ -1,19 +1,13 @@
-# Import required libraries
 from langchain_neo4j import Neo4jGraph
 from dotenv import load_dotenv
-import os
-from langchain_openai import AzureChatOpenAI
-from langchain_community.vectorstores import Neo4jVector
-from langchain_openai import AzureOpenAIEmbeddings
-from langchain.chains import RetrievalQA
 
-# Load environment variables from .env file (for security)
+# Load environment variables
 load_dotenv()
 
-# Neo4j Database Credentials (Use environment variables instead of hardcoding)
-NEO4J_URL = os.getenv("NEO4J_URL", "bolt://localhost:7687")
-NEO4J_USERNAME = os.getenv("NEO4J_USERNAME", "neo4j")
-NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")  # Store securely
+# Neo4j Database Credentials (Replace with secure credentials)
+NEO4J_URL = "bolt://localhost:7687"
+NEO4J_USERNAME = "neo4j"
+NEO4J_PASSWORD = '12345678'  # Use environment variable for security
 
 # Initialize the Neo4j Graph connection
 graph = Neo4jGraph(
@@ -23,7 +17,7 @@ graph = Neo4jGraph(
 )
 print("✅ Connected to Neo4j Knowledge Graph!")
 
-# Define Cypher query for creating an enriched Space Exploration Graph
+# Define Cypher query for Space Exploration Missions
 space_exploration_query = """
 CREATE
   (voyager1:Spacecraft {name: 'Voyager 1', launch_year: 1977, mission_type: 'Interstellar Probe', status: 'Operational', funding: 'NASA'}),
@@ -35,7 +29,7 @@ CREATE
   (hubble:Spacecraft {name: 'Hubble Space Telescope', launch_year: 1990, mission_type: 'Space Telescope', status: 'Operational', funding: 'NASA/ESA'}),
   (jwst:Spacecraft {name: 'James Webb Space Telescope', launch_year: 2021, mission_type: 'Infrared Space Telescope', status: 'Operational', funding: 'NASA/ESA/CSA'}),
   (artemis1:Spacecraft {name: 'Artemis I', launch_year: 2022, mission_type: 'Lunar Mission', status: 'Completed', funding: 'NASA'}),
-  
+
   (nasa:Agency {name: 'NASA', country: 'USA'}),
   (isro:Agency {name: 'ISRO', country: 'India'}),
   (spacex:Agency {name: 'SpaceX', country: 'USA'}),
@@ -63,57 +57,21 @@ CREATE
   (voyager1)-[:EXPLORED]->(saturn),
   (voyager2)-[:EXPLORED]->(jupiter),
   (voyager2)-[:EXPLORED]->(saturn),
-  (perseverance)-[:LANDED_ON]->(mars),
+
+  (perseverance)-[:EXPLORED]->(mars),
+  (perseverance)-[:LANDED_ON]->(mars),  // Kept for historical accuracy
+  (tianwen1)-[:EXPLORED]->(mars),
+  (tianwen1)-[:ORBITED]->(mars),
+
   (apollo11)-[:LANDED_ON]->(moon),
   (chandrayaan3)-[:LANDED_ON]->(moon),
-  (tianwen1)-[:ORBITED]->(mars),
+  
   (hubble)-[:ORBITED]->(earth),
   (jwst)-[:ORBITED]->(earth)
+
 """
 
-# Run the query in Neo4j to create nodes and relationships
+# Run the query in Neo4j
 graph.query(space_exploration_query)
 print("🚀 Space Exploration Knowledge Graph Created!")
 
-# Initialize Neo4j Vector Store for Retrieval-Augmented Generation (RAG)
-vector_index = Neo4jVector.from_existing_graph(
-    AzureOpenAIEmbeddings(
-        azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
-        api_key=os.getenv("CHAT_GPT_KEY"),
-        api_version="",
-        azure_deployment="text-embedding-ada"
-    ),
-    url=NEO4J_URL,
-    username=NEO4J_USERNAME,
-    password=NEO4J_PASSWORD,
-    index_name='space_missions',
-    node_label=["Spacecraft", "Agency", "Planet", "Mission"],
-    text_node_properties=['name', 'mission_type', 'status', 'funding'],
-    embedding_node_property='embedding',
-)
-
-# Initialize Azure OpenAI LLM for answering queries
-llm = AzureChatOpenAI(
-    deployment_name="gpt-4o",
-    model="gpt-4o",
-    azure_endpoint=os.getenv("AZURE_OPENAI_CHAT_ENDPOINT"),
-    openai_api_version=",
-    openai_api_key=os.getenv("CHAT_GPT_KEY2"),
-    temperature=0.1,
-    request_timeout=30
-)
-
-# Create RetrievalQA pipeline using Neo4j Vector search
-vector_qa = RetrievalQA.from_chain_type(
-    llm=llm,
-    chain_type="stuff",
-    retriever=vector_index.as_retriever(search_type="similarity", search_kwargs={"k": 5})
-)
-
-# Example query
-query = "Which spacecraft explored Mars? Provide details including launch year and mission type."
-response = vector_qa.invoke(query)
-
-# Print Query and Response
-print("❓ Query:", query)
-print("🤖 Response:", response)
