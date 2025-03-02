@@ -1,4 +1,4 @@
-# Space Exploration Knowledge Graph
+# Knowledge Graph Based RAG Demonstration
 
 ## Overview
 This project creates and queries a **Knowledge Graph** for space exploration missions using **Neo4j** and **LangChain**. The graph represents spacecraft, space agencies, planets, and their relationships, allowing users to ask natural language questions and retrieve insights using **Azure OpenAI (GPT-4o)**.
