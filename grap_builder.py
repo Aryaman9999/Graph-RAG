@@ -7,7 +7,7 @@ load_dotenv()
 # Neo4j Database Credentials (Replace with secure credentials)
 NEO4J_URL = "bolt://localhost:7687"
 NEO4J_USERNAME = "neo4j"
-NEO4J_PASSWORD = '12345678'  # Use environment variable for security
+NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")  # Use environment variable for security
 
 # Initialize the Neo4j Graph connection
 graph = Neo4jGraph(
